@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Survey Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/w3-css/4.1.0/w3.min.css">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .form-section {
+            margin-bottom: 24px;
+        }
+        .checkbox-group, .radio-group {
+            margin: 10px 0;
+        }
+        .required-field::after {
+            content: " *";
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <style>
+        body{
+            background-color:darkolivegreen;
+        }
+    </style>
+    <div class="w3-container w3-teal">
+        <center><h1>Student Survey Form</h1></center>
+    </div>
+
+    <div class="form-container">
+        <form id="surveyForm" class="w3-container" onsubmit="return validateForm()">
+            <!-- Personal Information -->
+            <div class="form-section w3-padding w3-black w3-opacity-min">
+                <h3>Personal Information</h3>
+                <label class="required-field">First Name:</label>
+                <input class="w3-input w3-border" type="text" name="firstName" required>
+                
+                <label class="required-field">Last Name:</label>
+                <input class="w3-input w3-border" type="text" name="lastName" required>
+                
+                <label class="required-field">Street Address:</label>
+                <input class="w3-input w3-border" type="text" name="address" required>
+                
+                <label class="required-field">City:</label>
+                <input class="w3-input w3-border" type="text" name="city" required>
+                
+                <label class="required-field">State:</label>
+                <input class="w3-input w3-border" type="text" name="state" required>
+                
+                <label class="required-field">ZIP:</label>
+                <input class="w3-input w3-border" type="text" name="zip" pattern="[0-9]{5}" required>
+                
+                <label class="required-field">Telephone:</label>
+                <input class="w3-input w3-border" type="tel" name="telephone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="123-456-7890" required>
+                
+                <label class="required-field">Email:</label>
+                <input class="w3-input w3-border" type="email" name="email" required>
+                
+                <label class="required-field">Date of Survey:</label>
+                <input class="w3-input w3-border" type="date" name="surveyDate" required>
+            </div>
+
+            <!-- Campus Features -->
+            <div class="form-section w3-padding w3-black w3-opacity-min">
+                <h3>What did you like most about the campus?</h3>
+                <div class="checkbox-group">
+                    <label class="w3-check">
+                        <input type="checkbox" name="liked" value="students">
+                        Students
+                    </label><br>
+                    <label class="w3-check">
+                        <input type="checkbox" name="liked" value="location">
+                        Location
+                    </label><br>
+                    <label class="w3-check">
+                        <input type="checkbox" name="liked" value="campus">
+                        Campus
+                    </label><br>
+                    <label class="w3-check">
+                        <input type="checkbox" name="liked" value="atmosphere">
+                        Atmosphere
+                    </label><br>
+                    <label class="w3-check">
+                        <input type="checkbox" name="liked" value="dorm">
+                        Dorm Rooms
+                    </label><br>
+                    <label class="w3-check">
+                        <input type="checkbox" name="liked" value="sports">
+                        Sports
+                    </label>
+                </div>
+            </div>
+
+            <!-- Interest Source -->
+            <div class="form-section w3-padding w3-black w3-opacity-min">
+                <h3>How did you become interested in the university?</h3>
+                <div class="radio-group">
+                    <label class="w3-radio">
+                        <input type="radio" name="interest" value="friends" required>
+                        Friends
+                    </label><br>
+                    <label class="w3-radio">
+                        <input type="radio" name="interest" value="television">
+                        Television
+                    </label><br>
+                    <label class="w3-radio">
+                        <input type="radio" name="interest" value="internet">
+                        Internet
+                    </label><br>
+                    <label class="w3-radio">
+                        <input type="radio" name="interest" value="other">
+                        Other
+                    </label>
+                </div>
+            </div>
+
+            <!-- Recommendation Likelihood -->
+            <div class="form-section w3-padding w3-black w3-opacity-min">
+                <h3>How likely are you to recommend this school to other prospective students?</h3>
+                <select class="w3-select w3-border" name="recommendation" required>
+                    <option value="" disabled selected>Choose your option</option>
+                    <option value="very-likely">Very Likely</option>
+                    <option value="likely">Likely</option>
+                    <option value="unlikely">Unlikely</option>
+                </select>
+            </div>
+
+            <!-- Raffle -->
+            <div class="form-section w3-padding w3-black w3-opacity-min">
+                <h3>Raffle Entry</h3>
+                <label class="required-field">Enter at least 10 numbers between 1 and 100 (comma-separated):</label>
+                <input class="w3-input w3-border" type="text" name="raffle" id="raffle" required>
+            </div>
+
+            <!-- Comments -->
+            <div class="form-section w3-padding w3-black w3-opacity-min">
+                <h3>Additional Comments</h3>
+                <textarea class="w3-input w3-border" name="comments" rows="4"></textarea>
+            </div>
+
+            <div>
+                <a href="http://ksbucket.com.s3-website-us-east-1.amazonaws.com" class="w3-bar-item w3-button">Home Page</a>
+            </div>
+
+            <!-- Buttons -->
+            <div class="form-section">
+                <button class="w3-button w3-teal" type="submit">Submit</button>
+                <button class="w3-button w3-grey" type="reset">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function validateForm() {
+            // Validate raffle numbers
+            const raffleInput = document.getElementById('raffle').value;
+            const numbers = raffleInput.split(',').map(num => parseInt(num.trim()));
+            
+            // Check if there are at least 10 numbers
+            if (numbers.length < 10) {
+                alert('Please enter at least 10 numbers for the raffle');
+                return false;
+            }
+            
+            // Check if all numbers are between 1 and 100
+            const validNumbers = numbers.every(num => num >= 1 && num <= 100);
+            if (!validNumbers) {
+                alert('All raffle numbers must be between 1 and 100');
+                return false;
+            }
+            
+            return true;
+        }
+    </script>
+</body>
+</html>
