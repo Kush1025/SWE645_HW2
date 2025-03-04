@@ -1,42 +1,58 @@
+// Kalyani, Miloni, Kashish
+// This is a Jenkins file, This file includes scripts for image building and uploading to docker hub and then deploying on rancher
 pipeline {
     agent any
-    
     environment {
-        DOCKER_HUB_CREDS = credentials('docker_credentials')
-        DOCKER_IMAGE = 'kshah1025/img'
-        DOCKER_TAG = "${BUILD_NUMBER}"
+        DOCKERHUB_CREDENTIALS = credentials('docker-credentials')
     }
-    
     stages {
-        stage('Checkout') {
+        stage('Timestamp') {
             steps {
-                git url: 'https://github.com/Kush1025/SWE645_HW2.git', branch: 'main'
+                script {
+                    // Defining a build timestamp variable
+                    env.BUILD_TIMESTAMP = new Date().format("yyyyMMddHHmmss", TimeZone.getTimeZone('UTC'))
+                    echo "Build timestamp: ${env.BUILD_TIMESTAMP}"
+                }
+            }
+        }
+
+
+        stage('Build docker image') {
+            steps {
+                script {
+                    
+                    // Securely handling Docker login
+                    withCredentials([usernamePassword(credentialsId: 'docker-credentials', 
+                                                      usernameVariable: 'DOCKER_USER', 
+                                                      passwordVariable: 'DOCKER_PASS')]) {
+                        sh """
+                            echo "\$DOCKER_PASS" | docker login -u "\$DOCKER_USER" --password-stdin
+                        """
+                    }
+
+                    def imageName = "kshah1025/img:${env.BUILD_TIMESTAMP}"
+                    sh "docker build -t ${imageName} -f src/main/webapp/Dockerfile src/main/webapp"
+
+                    env.IMAGE_NAME = imageName
+                }
             }
         }
         
-        stage('Build Docker Image') {
+
+        stage('Push Image') {
             steps {
-                sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
+                script {
+                    sh "docker push ${env.IMAGE_NAME}"
+                }
             }
         }
-        
-        stage('Push to DockerHub') {
+
+        stage('Deployment') {
             steps {
-                sh 'echo $DOCKER_HUB_CREDS_PSW | docker login -u $DOCKER_HUB_CREDS_USR --password-stdin'
-                sh 'docker push ${DOCKER_IMAGE}:${DOCKER_TAG}'
+                script {
+                    sh "kubectl set image deployment/deployment1 container-0=${env.IMAGE_NAME}"
+                }
             }
-        }
-        
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh 'kubectl set image deployment/deployment1 studentsurvey=${DOCKER_IMAGE}:${DOCKER_TAG}'
-            }
-        }
-    }
-    
-    post {
-        always {
-            sh 'docker logout'
         }
     }
 }
