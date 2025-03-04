@@ -2,53 +2,41 @@ pipeline {
     agent any
     
     environment {
-        // Define environment variables
-        DOCKER_HUB_CREDS = credentials('docker-credentials')
-        IMAGE_NAME = 'kshah1025/img'
-        IMAGE_TAG = '0.1'
+        DOCKER_HUB_CREDS = credentials('docker_credentials')
+        DOCKER_IMAGE = 'kshah1025/img'
+        DOCKER_TAG = "${BUILD_NUMBER}"
     }
     
     stages {
         stage('Checkout') {
             steps {
-                // Get code from GitHub repository
-                checkout scm
+                git url: 'https://github.com/Kush1025/SWE645_HW2.git', branch: 'main'
             }
         }
         
         stage('Build Docker Image') {
             steps {
-                // Build the Docker image
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
             }
         }
         
-        stage('Push to Docker Hub') {
+        stage('Push to DockerHub') {
             steps {
-                // Log in to Docker Hub
-                sh "echo ${DOCKER_HUB_CREDS_PSW} | docker login -u ${DOCKER_HUB_CREDS_USR} --password-stdin"
-                
-                // Push the image
-                sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-                
-                // Log out for security
-                sh "docker logout"
+                sh 'echo $DOCKER_HUB_CREDS_PSW | docker login -u $DOCKER_HUB_CREDS_USR --password-stdin'
+                sh 'docker push ${DOCKER_IMAGE}:${DOCKER_TAG}'
             }
         }
         
         stage('Deploy to Kubernetes') {
             steps {
-                // Apply Kubernetes manifests
-                sh "kubectl apply -f k8s-deployment.yaml"
-                sh "kubectl apply -f k8s-service.yaml"
+                sh 'kubectl set image deployment/deployment1 studentsurvey=${DOCKER_IMAGE}:${DOCKER_TAG}'
             }
         }
     }
     
     post {
         always {
-            // Clean up
-            sh "docker system prune -f"
+            sh 'docker logout'
         }
     }
 }
