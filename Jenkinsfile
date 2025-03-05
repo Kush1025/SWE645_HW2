@@ -31,7 +31,7 @@ pipeline {
                     }
 
                     def imageName = "kshah1025/img:${env.BUILD_TIMESTAMP}"
-                    sh "docker build -t ${imageName} -f Dockerfile ."
+                    sh "sudo docker build -t ${imageName} -f Dockerfile ."
 
                     env.IMAGE_NAME = imageName
                 }
